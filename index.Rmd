@@ -8,3 +8,75 @@ output:
 ---
 
 This is my JSC370 Lab 12 Website.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE, cache = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE, include=FALSE}
+source("process_starbucks_data.R")
+```
+
+## Showcasing plots {.tabset}
+
+### Figure 1
+
+```{r echo=FALSE, warning=FALSE}
+top_10 <- sb_nutr |>
+  unnest_tokens(word, Item) |>
+  count(word, sort = TRUE) |>
+  head(10) |>
+  select(word) |>
+  unlist()
+
+sb_nutr_top_words <- sb_nutr |>
+  mutate(contains_word = str_detect(Item, regex(paste(top_10, collapse = "|"), ignore_case = TRUE))) |>
+  filter(contains_word == TRUE)
+
+sb_nutr_top_words |>
+  plot_ly(x = ~Calories, y = ~`Carb. (g)`, z = ~`Protein (g)`,
+          type = 'scatter3d', mode = 'markers',
+          marker = list(size = 5, sizemode='diameter', opacity=0.5)) |>
+  layout(title = '3D Scatterplot of Nutrition Facts for Top Word Items',
+         scene = list(xaxis = list(title = 'Calories'),
+                      yaxis = list(title = 'Carbs'),
+                      zaxis = list(title = 'Protein')))
+```
+
+### Figure 2
+
+```{r echo=FALSE, warning=FALSE}
+set_map_details <- list(
+  scope = 'usa',
+  projection = list(type = 'albers usa'),
+  showlakes = TRUE,
+  lakecolor = toRGB('steelblue')
+)
+
+# Make sure both maps are on the same color scale
+shadeLimit <- 125
+
+# Create hover text
+sb_locs_state$hover <- with(sb_locs_state, paste("Number of Starbucks: ", n_stores, '<br>', "State: ", state, '<br>', "Population: ", population))
+
+usa_pop_abbr$hover <- with(usa_pop_abbr, paste("State: ", state, '<br>', "Population: ", population))
+
+
+# Create the map
+map1 <- plot_geo(sb_locs_state, locationmode = 'USA-states') |>
+  add_trace(
+    z = ~n_stores, locations = ~state,
+    hoverinfo = "text",
+    text = ~hover,
+    colors = 'Purples', 
+    marker = list(line = list(color = 'rgb(255,255,255)', width = 2))
+  ) |>
+  colorbar(title = "Stores") |>
+  layout(title = 'Starbucks Stores per State', geo = set_map_details)
+
+map1
+```
+
+
+
+
+
