@@ -1,0 +1,10 @@
+---
+title: "JSC370 Lab 12"
+author: "Elaine Dai"
+output: 
+    html_document:
+        toc: TRUE
+        toc_float: TRUE
+---
+
+This is my JSC370 Lab 12 Website.
